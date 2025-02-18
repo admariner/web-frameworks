@@ -1,4 +1,4 @@
-FROM rust:1.83-slim AS build
+FROM rust:1.84-slim AS build
 
 WORKDIR /usr/src/app
 
@@ -6,7 +6,10 @@ WORKDIR /usr/src/app
   COPY '{{source}}' '{{target}}'
 {{/files}}
 
-RUN cargo build --release && strip target/release/server
+RUN cargo build --release  \
+  --config  'profile.release.lto=true' \
+  --config  'profile.release.panic="abort"' \
+  --config  'profile.release.codegen-units=1'
 
 FROM debian:stable-slim
 
